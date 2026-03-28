@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detector de Somnolencia al Volante</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>IA Contra la Somnolencia</h1>
+            <p>Sistema de Detección de Sueño en Tiempo Real para Conductores</p>
+        </header>
+
+        <main>
+            <div class="monitor-panel">
+                <div class="video-container">
+                    <div id="webcam-container"></div>
+                    <div class="status-overlay" id="status-overlay">
+                        SISTEMA INACTIVO
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button id="btn-start" class="btn primary">Iniciar Detección</button>
+                    <button id="btn-stop" class="btn secondary" disabled>Detener</button>
+                </div>
+
+                <div class="status-panel">
+                    <div id="label-container" class="labels-grid"></div>
+                </div>
+
+                <div class="message-container" id="message-container">
+                    <!-- Dynamic Messages -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Audios MP3 -->
+    <audio id="audio-somnoliento" src="cancion_rusa.mp3" preload="auto" loop></audio>
+    <audio id="audio-despierto" src="cancion_despierto.mp3" preload="auto" loop></audio>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
