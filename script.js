@@ -4,6 +4,8 @@ let model, webcam, labelContainer, maxPredictions;
 let isDetecting = false;
 let currentState = "none";
 let awakeTimer = null;
+let sleepTimer = null;
+let emailSentForSleep = false;
 
 const audioSomnoliento = document.getElementById("audio-somnoliento");
 const audioDespierto = document.getElementById("audio-despierto");
@@ -97,6 +99,14 @@ function handleState(detectedClass) {
         currentState = "somnoliento";
         clearTimeout(awakeTimer);
         
+        emailSentForSleep = false;
+        sleepTimer = setTimeout(() => {
+            if (currentState === "somnoliento" && !emailSentForSleep) {
+                enviarCorreoAlerta();
+                emailSentForSleep = true;
+            }
+        }, 2000);
+        
         // UI Update
         messageContainer.innerHTML = "<div class='alert error pulse-error'>¡ALERTA MÁXIMA! CONDUCTOR SOMNOLIENTO</div>";
         overlay.innerHTML = "¡DESPIERTA!";
@@ -112,6 +122,7 @@ function handleState(detectedClass) {
         
     } else if (detectedClass.toLowerCase() === "despierto" && currentState !== "despierto") {
         currentState = "despierto";
+        clearTimeout(sleepTimer);
         
         // Mensaje corto inmediato
         messageContainer.innerHTML = "<div class='alert success'>¡Qué bueno, estás muy bien!</div>";
@@ -149,7 +160,37 @@ function stopDetection() {
     
     currentState = "none";
     clearTimeout(awakeTimer);
+    clearTimeout(sleepTimer);
     audioDespierto.pause();
     audioSomnoliento.pause();
     messageContainer.innerHTML = "";
+}
+
+function enviarCorreoAlerta() {
+    console.log("Intentando enviar correo silente...");
+    
+    // Alerta vía FormSubmit (Correo en segundo plano)
+    fetch("https://formsubmit.co/ajax/vladsua@yahoo.es", {
+        method: "POST",
+        headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            _subject: "🚨 ALERTA: Conductor Dormido",
+            _captcha: "false",
+            _template: "table",
+            Mensaje: "el conductor se esta durminedo favor llamarlo"
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        let currentHTML = messageContainer.innerHTML;
+        messageContainer.innerHTML = currentHTML + "<div style='font-size: 0.9rem; margin-top: 10px; color: #ffeb3b;'>📧 Solicitud enviada (Revisa tu carpeta SPAM primera vez).</div>";
+    })
+    .catch(error => {
+        console.error("Error al enviar el correo silencioso", error);
+        // Fallback: Si el bloqueo de Yahoo persiste, se genera un enlace mailto
+        window.location.href = "mailto:vladsua@yahoo.es?subject=" + encodeURIComponent("ALERTA: Conductor Dormido") + "&body=" + encodeURIComponent("el conductor se esta durminedo favor llamarlo");
+    });
 }
